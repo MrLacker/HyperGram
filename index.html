@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperGram 3.1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://apis.google.com/js/api:client.js"></script>
+    <style>
+        :root {
+            --primary-color: #0088cc;
+            --primary-light: #e6f2ff;
+            --text-color: #333;
+            --border-color: #ddd;
+            --white: #ffffff;
+            --black: #000000;
+            --error-color: #ff4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-color);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .screen {
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Auth Screen */
+        .auth-container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-container h1 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .auth-container p {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .auth-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 10px auto;
+            width: 100%;
+            max-width: 250px;
+            border: 1px solid var(--black);
+        }
+
+        .auth-button:hover {
+            background-color: #0077b3;
+        }
+
+        .auth-button .material-icons {
+            margin-right: 10px;
+        }
+
+        /* Profile Setup Screen */
+        .profile-container {
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 15px;
+            border: 2px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .button {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--black);
+        }
+
+        .primary-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            width: 100%;
+        }
+
+        .primary-button:hover {
+            background-color: #0077b3;
+        }
+
+        .outline-button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .outline-button:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* Main App Screen */
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .app-content {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            background-color: var(--primary-light);
+            border-radius: 12px;
+        }
+
+        .user-profile {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .user-profile .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 10px;
+            border: 2px solid var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-container, .profile-container {
+                padding: 20px;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="screen">
+            <div class="auth-container">
+                <h1>Добро пожаловать в HyperGram</h1>
+                <p>Войдите чтобы начать</p>
+                <div id="google-signin" class="auth-button">
+                    <span class="material-icons">account_circle</span>
+                    <span>Войти через Google</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Setup Screen -->
+        <div id="profile-screen" class="screen hidden">
+            <div class="profile-container">
+                <h2>Завершите регистрацию</h2>
+                
+                <div class="avatar-upload">
+                    <div id="avatar-preview" class="avatar-preview"></div>
+                    <input type="file" id="avatar-input" accept="image/*" class="hidden">
+                    <button id="change-avatar" class="outline-button">Выбрать аватар</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="first-name">Имя</label>
+                    <input type="text" id="first-name" placeholder="Введите ваше имя" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="last-name">Фамилия (необязательно)</label>
+                    <input type="text" id="last-name" placeholder="Введите вашу фамилию">
+                </div>
+                
+                <div class="form-group">
+                    <label for="birth-date">Дата рождения</label>
+                    <input type="date" id="birth-date" required>
+                </div>
+                
+                <button id="complete-registration" class="primary-button">Завершить регистрацию</button>
+            </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="main-screen" class="screen hidden">
+            <div class="app-header">
+                <h2>HyperGram 3.1.0</h2>
+                <p id="welcome-message">Добро пожаловать!</p>
+            </div>
+            
+            <div class="app-content">
+                <p>Это прототип HyperGram. Скоро здесь будет больше функций!</p>
+            </div>
+            
+            <div class="user-profile">
+                <div id="user-avatar" class="avatar"></div>
+                <div id="user-name"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4R5v5X5X5X5X5X5X5X5X5X5X5X5X5X5X5",
+            authDomain: "hypergram-e6413.firebaseapp.com",
+            databaseURL: "https://hypergram-e6413-default-rtdb.firebaseio.com",
+            projectId: "hypergram-e6413",
+            storageBucket: "hypergram-e6413.appspot.com",
+            messagingSenderId: "793532963626",
+            appId: "1:793532963626:web:5e5e5e5e5e5e5e5e5e5e5e"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Google OAuth Client ID
+        const googleClientId = '793532963626-reoalbm67fus8fusv6i7k175pspb4pi6.apps.googleusercontent.com';
+
+        // ImgBB API Key
+        const imgbbApiKey = '4b62990623d31fc27ca37a8e9470f255';
+
+        // DOM Elements
+        const authScreen = document.getElementById('auth-screen');
+        const profileScreen = document.getElementById('profile-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const googleSignInBtn = document.getElementById('google-signin');
+        const avatarInput = document.getElementById('avatar-input');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const changeAvatarBtn = document.getElementById('change-avatar');
+        const firstNameInput = document.getElementById('first-name');
+        const lastNameInput = document.getElementById('last-name');
+        const birthDateInput = document.getElementById('birth-date');
+        const completeRegistrationBtn = document.getElementById('complete-registration');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        // Global variables
+        let currentUser = null;
+        let avatarFile = null;
+        let googleUser = null;
+
+        // Check if user is already logged in
+        function checkAuthState() {
+            const savedUser = localStorage.getItem('hypergram_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainScreen();
+                loadUserData();
+            } else {
+                showAuthScreen();
+            }
+        }
+
+        // Show auth screen
+        function showAuthScreen() {
+            authScreen.classList.remove('hidden');
+            profileScreen.classList.add('hidden');
+            mainScreen.classList.add('hidden');
+        }
+
+        // Show profile setup screen
+        function showProfileScreen() {
+            authScreen.classList.add('hidden');
+            profileScreen.classList.remove('hidden');
+            mainScreen.classList.add('hidden');
+        }
+
+        // Show main app screen
+        function showMainScreen() {
+            authScreen.classList.add('hidden');
+            profileScreen.classList.add('hidden');
+            mainScreen.classList.remove('hidden');
+        }
+
+        // Initialize Google Auth
+        function initGoogleAuth() {
+            const auth2 = gapi.auth2.init({
+                client_id: googleClientId,
+                scope: 'profile email'
+            });
+
+            auth2.then(() => {
+                googleSignInBtn.addEventListener('click', () => {
+                    auth2.signIn().then(googleUser => {
+                        handleGoogleSignIn(googleUser);
+                    }).catch(error => {
+                        console.error('Google sign-in error:', error);
+                        alert('Ошибка входа через Google. Пожалуйста, попробуйте снова.');
+                    });
+                });
+            });
+        }
+
+        // Handle Google sign-in
+        function handleGoogleSignIn(googleUser) {
+            const credential = firebase.auth.GoogleAuthProvider.credential(
+                googleUser.getAuthResponse().id_token
+            );
+
+            auth.signInWithCredential(credential)
+                .then((result) => {
+                    currentUser = result.user;
+                    checkUserProfile();
+                })
+                .catch((error) => {
+                    console.error('Firebase auth error:', error);
+                    alert('Ошибка аутентификации. Пожалуйста, попробуйте снова.');
+                });
+        }
+
+        // Check if user profile exists in database
+        function checkUserProfile() {
+            const userRef = database.ref('users/' + currentUser.uid);
+            
+            userRef.once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    // User exists, go to main screen
+                    const userData = snapshot.val();
+                    currentUser.profile = userData;
+                    saveUserToLocalStorage();
+                    showMainScreen();
+                    loadUserData();
+                } else {
+                    // New user, show profile setup
+                    showProfileScreen();
+                }
+            });
+        }
+
+        // Handle avatar selection
+        changeAvatarBtn.addEventListener('click', () => {
+            avatarInput.click();
+        });
+
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                avatarFile = file;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    avatarPreview.style.backgroundImage = `url(${event.target.result})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Complete registration
+        completeRegistrationBtn.addEventListener('click', () => {
+            const firstName = firstNameInput.value.trim();
+            const lastName = lastNameInput.value.trim();
+            const birthDate = birthDateInput.value;
+
+            if (!firstName) {
+                alert('Пожалуйста, введите ваше имя');
+                return;
+            }
+
+            if (!birthDate) {
+                alert('Пожалуйста, укажите дату рождения');
+                return;
+            }
+
+            if (!avatarFile) {
+                alert('Пожалуйста, выберите аватар');
+                return;
+            }
+
+            completeRegistrationBtn.disabled = true;
+            completeRegistrationBtn.textContent = 'Загрузка...';
+
+            // Upload avatar to ImgBB
+            uploadAvatar(avatarFile)
+                .then((avatarUrl) => {
+                    // Save user profile to Firebase
+                    const userProfile = {
+                        firstName: firstName,
+                        lastName: lastName,
+                        birthDate: birthDate,
+                        avatarUrl: avatarUrl,
+                        email: currentUser.email,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    return database.ref('users/' + currentUser.uid).set(userProfile);
+                })
+                .then(() => {
+                    // Update current user object
+                    currentUser.profile = {
+                        firstName: firstName,
+                        lastName: lastName,
+                        birthDate: birthDate,
+                        avatarUrl: avatarUrl
+                    };
+
+                    // Save to local storage
+                    saveUserToLocalStorage();
+
+                    // Show main screen
+                    showMainScreen();
+                    loadUserData();
+                })
+                .catch((error) => {
+                    console.error('Registration error:', error);
+                    alert('Ошибка при регистрации. Пожалуйста, попробуйте снова.');
+                })
+                .finally(() => {
+                    completeRegistrationBtn.disabled = false;
+                    completeRegistrationBtn.textContent = 'Завершить регистрацию';
+                });
+        });
+
+        // Upload avatar to ImgBB
+        function uploadAvatar(file) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resolve(data.data.url);
+                    } else {
+                        reject(new Error('Failed to upload image'));
+                    }
+                })
+                .catch(error => reject(error));
+            });
+        }
+
+        // Save user to local storage
+        function saveUserToLocalStorage() {
+            localStorage.setItem('hypergram_user', JSON.stringify(currentUser));
+        }
+
+        // Load user data to main screen
+        function loadUserData() {
+            if (currentUser && currentUser.profile) {
+                // Set avatar
+                if (currentUser.profile.avatarUrl) {
+                    userAvatar.style.backgroundImage = `url(${currentUser.profile.avatarUrl})`;
+                }
+
+                // Set user name
+                const fullName = `${currentUser.profile.firstName} ${currentUser.profile.lastName || ''}`.trim();
+                userName.textContent = fullName;
+                
+                // Set welcome message
+                welcomeMessage.textContent = `Добро пожаловать, ${currentUser.profile.firstName}!`;
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load Google API and init auth
+            gapi.load('auth2', initGoogleAuth);
+            
+            // Check auth state
+            checkAuthState();
+        });
+    </script>
+</body>
+</html>
