@@ -1,1 +1,2 @@
-python-telegram-bot==20.7
+pyTelegramBotAPI==4.15.2
+aiohttp==3.9.1
